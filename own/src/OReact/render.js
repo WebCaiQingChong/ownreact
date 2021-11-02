@@ -1,12 +1,14 @@
 import { setNextUnitWork, workLoop } from './workLoop'
 let wipRoot
+let currentRoot = null
 let deletions = null
 function render (element, container) {
     wipRoot = {
         dom: container,
         props: {
             children: [element]
-        }
+        },
+        alternate: currentRoot
     }
     deletions = []
     setNextUnitWork(wipRoot)
@@ -17,10 +19,21 @@ function setWipRoot (root) {
     wipRoot = root
 }
 
+function setCurrentRoot (root) {
+    currentRoot = root
+}
+
+function setDeletions (arr) {
+    deletions = arr
+}
+
 
 export {
     render,
     setWipRoot,
     wipRoot,
-    deletions
+    deletions,
+    setCurrentRoot,
+    currentRoot,
+    setDeletions
 }

@@ -1,3 +1,4 @@
+import {updateDom} from './commitRoot'
 function createDom (fiber) {
     let dom
 
@@ -7,9 +8,7 @@ function createDom (fiber) {
         dom  = document.createElement(fiber.type)
     }
 
-    Object.keys(fiber.props).filter(e => e !== 'children').forEach(e => {
-        dom[e] = fiber.props[e]
-    })
+    updateDom(dom, {}, fiber.props)
 
     return dom
 }

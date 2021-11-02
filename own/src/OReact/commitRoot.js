@@ -3,13 +3,16 @@ function commitWork (fiber) {
     if (!fiber) {
         return
     }
-
-    const domParent = fiber.parent.dom
+    let domParentFiber = fiber.parent
+    while(!domParentFiber.dom) {
+        domParentFiber = domParentFiber.parent
+    }
+    const domParent = domParentFiber.dom
 
     if (fiber.effectTag === 'PLACEMENT' && fiber.dom !== null) {
         domParent.appendChild(fiber.dom)
     } else if (fiber.effectTag === 'DETETION'){
-        domParent.removeChild(fiber.dom)
+        commitDeletion(fiber, domParent)
     } else if (fiber.effectTag === 'UPDATE'){
         // update Dom
         updateDom(fiber.dom, fiber.alternate.props, fiber.props)
@@ -18,6 +21,14 @@ function commitWork (fiber) {
 
     commitWork(fiber.child)
     commitWork(fiber.sibling)
+}
+
+function commitDeletion (fiber, domParent) {
+    if (fiber.dom) {
+        domParent.removeChild(fiber.dom)
+    } else {
+        commitDeletion(fiber.child, domParent)
+    }
 }
 function commitRoot () {
     deletions.forEach(commitWork)
@@ -76,4 +87,6 @@ function updateDom (dom, prevProps, nextProps) {
     })
 
 }
+
+export {updateDom}
 export default commitRoot
