@@ -1,31 +1,60 @@
-/** @jsxRuntime classic */
+import ReactDom from 'react-dom'
+// import 'index.css'
 
-import OReact from './OReact'
-import './index.css';
+let memoized = []
+let cursor = 0
+function useState (initailState) {
+  memoized[cursor] = memoized[cursor] || initailState
+  const currentcursor = cursor
+  function setState(newState) {
+    memoized[currentcursor] = newState
+    render()
+  }
 
-
-
-
-/* @jsx OReact.createElement */
-function Counter () {
-  const [state, setState] = OReact.useState(1)
-
-  return (
-    <h1 onClick={() => setState(c => c + 1)}>
-      Count: {state}
-    </h1>
-  )
+  return [memoized[cursor++], setState]
 }
-// function App(props) {
-//   return <h1> Hi {props.name}</h1>
-// }
-// const element = <div>
-//   <h1>bar</h1>
-//   <b>222</b>
-// </div>
 
-const element = <Counter></Counter>
+function useEffect (cb, deps) {
+  const hasNoDeps = !deps
+  const _deps = memoized[cursor]
+  const hasChangeDeps = _deps ? !deps.every((el, i) => el === _deps[i]) : true
 
-const container = document.getElementById('root')
-OReact.render(element, container);
+  if (hasNoDeps || hasChangeDeps) {
+    cb()
+    memoized[cursor] = deps
+  }
+  cursor++
+}
+function App() {
+  let [count, setCount] = useState(0)
+  let [name, setName] = useState(100)
+  console.log(memoized)
+
+  useEffect(() => {
+    console.log('count change')
+  }, [count])
+  useEffect(() => {
+    console.log('name change')
+  }, [name])
+  return (
+    <>
+    <div className="app" >
+      click {count} times.
+      <button onClick={() => setCount(++count)}>+1</button>
+    </div>
+    <div>
+      click anothers {name}
+      <button onClick={() => setName(--name)}>-1</button>
+    </div>
+    </>
+  );
+}
+
+function render () {
+  cursor = 0
+  ReactDom.render(<App />, document.getElementById('root'))
+}
+
+
+render()
 

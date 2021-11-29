@@ -11,3 +11,11 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+
+.app {
+  width: 100px;
+  height: 50px;
+  background: red;
+  color: #fff;
+}
